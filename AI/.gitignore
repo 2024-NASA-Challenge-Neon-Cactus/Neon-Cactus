@@ -15,6 +15,7 @@ data/downloads/
 data/processed/
 
 # Results
+data/
 data/results/
 data/downloads
 
