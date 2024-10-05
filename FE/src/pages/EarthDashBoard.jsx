@@ -4,6 +4,7 @@ import SelectData from "../components/SelectData";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import VisualizeData from "../components/VisualizeData";
+
 const EarthDashBoard = () => {
   return (
     <div>
@@ -16,13 +17,13 @@ const EarthDashBoard = () => {
               <Planet planet="earth" />
             </Canvas>
           </div>
-          <div className="flex flex-col w-[1064px] ml-[-100px] my-[56px] mr-[70px] z-10">
+          <div className="flex flex-col w-[1064px] ml-[-100px] my-[10px] mr-[70px] z-10">
             <SelectData
               planet="Earth"
               event="Earthquakes"
               nonEvent="Non-event"
             />
-            <VisualizeData />
+            {/* <VisualizeData /> */}
           </div>
         </div>
       </div>
