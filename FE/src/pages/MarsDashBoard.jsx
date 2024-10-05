@@ -17,13 +17,13 @@ const MarsDashBoard = () => {
               <Planet planet="mars" />
             </Canvas>
           </div>
-          <div className="flex flex-col w-[1064px] ml-[-100px] my-[56px] mr-[70px] z-10">
+          <div className="flex flex-col w-[1064px] ml-[-100px] my-[10px] mr-[70px] z-10">
             <SelectData
               planet="Mars"
               event="Seismic Event"
               nonEvent="Non-event"
             />
-            <VisualizeData />
+            {/* <VisualizeData /> */}
           </div>
         </div>
       </div>
