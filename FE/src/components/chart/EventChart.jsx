@@ -14,15 +14,15 @@ import "chartjs-adapter-luxon";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const WindChart = ({ data }) => {
+const EventChart = ({ data }) => {
   const chartData = {
     labels: data.map((_, index) => index + 1), // 인덱스를 라벨로 사용
     datasets: [
       {
-        label: "Wind Speed",
+        label: "Event Intensity",
         data: data,
-        borderColor: "rgba(255, 99, 132, 1)", // 빨간색
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: "rgba(255, 206, 86, 1)", // 노란색
+        backgroundColor: "rgba(255, 206, 86, 0.2)",
         pointRadius: 1,
         fill: true,
       },
@@ -35,7 +35,7 @@ const WindChart = ({ data }) => {
       y: {
         title: {
           display: true,
-          text: "Wind Speed",
+          text: "Event Intensity",
         },
       },
     },
@@ -44,4 +44,4 @@ const WindChart = ({ data }) => {
   return <Line data={chartData} options={options} />;
 };
 
-export default WindChart;
+export default EventChart;
