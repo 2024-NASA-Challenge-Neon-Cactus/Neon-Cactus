@@ -19,9 +19,9 @@ const SelectData = ({ planet, event, nonEvent }) => {
                 {event}
               </div>
               <div className="pt-[16px] flex items-center justify-between">
-                <Button />
-                <Button />
-                <Button />
+                <Button btn="Case 1" />
+                <Button btn="Case 2" />
+                <Button btn="Case 3" />
               </div>
             </div>
             <div className="w-[408px]">
@@ -29,9 +29,9 @@ const SelectData = ({ planet, event, nonEvent }) => {
                 {nonEvent}
               </div>
               <div className="pt-[16px] flex items-center justify-between">
-                <Button />
-                <Button />
-                <Button />
+                <Button btn="Case 1" />
+                <Button btn="Case 2" />
+                <Button btn="Case 3" />
               </div>
             </div>
           </div>

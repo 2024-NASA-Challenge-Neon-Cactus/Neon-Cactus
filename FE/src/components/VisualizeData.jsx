@@ -2,8 +2,8 @@ import React from "react";
 
 const VisualizeData = () => {
   return (
-    <div className=" h-[635px] mt-[19px] border border-[#999999] rounded-3xl  backdrop-blur-3xl">
-      <div className="p-[48px] flex flex-row ">
+    <div className=" h-[635px] mt-[10px] border border-[#999999] rounded-3xl  backdrop-blur-3xl">
+      <div className="p-[30px] flex flex-row ">
         <div className="w-[442px] h-full mr-[84px]">
           <div
             className="h-[223px] border-t-[1px] border-[#CBCBCB66] mb-[93px]"
