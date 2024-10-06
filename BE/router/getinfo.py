@@ -11,10 +11,10 @@ async def get_info(planet: str, case: int):
     response = {}
 
     # planet 조건 분기
-    if planet == "mars":
-        response["planet"] = "mars"
-    elif planet == "earth":
-        response["planet"] = "earth"
+    if planet == "Mars":
+        response["planet"] = "Mars"
+    elif planet == "Earth":
+        response["planet"] = "Earth"
     else:
         raise HTTPException(status_code=400, detail=f"Unknown planet: {planet}")
 
