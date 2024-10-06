@@ -120,10 +120,12 @@ class TWINSDownloader:
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             logging.info(f'{file_name} 다운로드 완료')
+            return file_path
         except requests.HTTPError as e:
             logging.error(f'파일 다운로드 실패: {url}, 에러: {e}')
 
     def download_range(self, start_sol, end_sol, directory):
+        file_path_list = []
         for sol in range(start_sol, end_sol + 1):
             sol_str = f"{sol:04d}"
 
@@ -160,10 +162,14 @@ class TWINSDownloader:
                 latest_file_url = file_urls[latest_version]
 
                 # 파일 다운로드
-                self.download_file(latest_file_url, directory)
+                file_path = self.download_file(latest_file_url, directory)
+                file_path_list.append(file_path)
 
+            
             except requests.HTTPError as e:
                 logging.error(f'디렉토리 접근 실패: {dir_url}, 에러: {e}')
+
+        return file_path_list
 
 
 class PSDownloader:
@@ -187,10 +193,12 @@ class PSDownloader:
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             logging.info(f'{file_name} 다운로드 완료')
+            return file_path
         except requests.HTTPError as e:
             logging.error(f'[!] 파일 다운로드 실패: {url}, 에러: {e}')
             
     def download_range(self, start_sol, end_sol, directory):
+        file_path_list = []
         for sol in range(start_sol, end_sol + 1):
             sol_str = f"{sol:04d}"
 
@@ -227,7 +235,10 @@ class PSDownloader:
                 latest_file_url = file_urls[latest_version]
 
                 # 파일 다운로드
-                self.download_file(latest_file_url, directory)
+                print("downloading file: ", latest_file_url)
+                file_path = self.download_file(latest_file_url, directory)
+                file_path_list.append(file_path)
 
             except requests.HTTPError as e:
                 logging.error(f'디렉토리 접근 실패: {dir_url}, 에러: {e}')
+        return file_path_list

@@ -8,6 +8,18 @@ import os
 from scipy import signal
 from downloader import SEISDownloader, TWINSDownloader, PSDownloader
 from utils import sols_to_earth_date
+import obspy
+from obspy import read, UTCDateTime
+from scipy.signal import stft
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime
+import os
+from scipy import signal
+from scipy.io.wavfile import write  # WAV 파일 저장을 위한 라이브러리
+from downloader import SEISDownloader, TWINSDownloader, PSDownloader
+from utils import sols_to_earth_date
+import pandas as pd
 
 landing_date = datetime(2018, 11, 26)
 
@@ -123,29 +135,21 @@ def download_data(date, type='all'):
             end_sol=sol,
             directory=twins_dir
         )
+        
         all_file_paths.extend(file_paths)
 
     if type == 'all' or type == 'ps':
-        ps_downloader.download_range(
+        file_paths = ps_downloader.download_range(
             start_sol=sol,
             end_sol=sol,
             directory=ps_dir
         )
+        print('file_paths :', file_paths)
         all_file_paths.extend(file_paths)
     
     return all_file_paths
 
-import obspy
-from obspy import read, UTCDateTime
-from scipy.signal import stft
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime
-import os
-from scipy import signal
-from scipy.io.wavfile import write  # WAV 파일 저장을 위한 라이브러리
-from downloader import SEISDownloader, TWINSDownloader, PSDownloader
-from utils import sols_to_earth_date
+
 
 def load_and_process_mseed(event, mseed_base_path, min_freq=0.1, max_freq=10):
     """
@@ -158,164 +162,133 @@ def load_and_process_mseed(event, mseed_base_path, min_freq=0.1, max_freq=10):
     year = start_time.year
     doy = start_time.timetuple().tm_yday
     
-    for channel in ['BHU', 'BHV', 'BHW']:  # 채널 목록 순회
-        file_found = False
+    file_paths = download_data(start_time, type='seis')
+    print("file paths :", file_paths)
+    
+    # 다운로드 후 파일이 있는지 확인
+    if not file_paths:
+        print(f"Failed to download data for {year}-{doy}. Skipping.")
+    else:
+        # 다운로드한 파일 처리
+        for mseed_file_path in file_paths:
+            print(f"Processing downloaded file: {mseed_file_path}")
+            stream = read(mseed_file_path)
+            print('stream :', stream)
+            print('stream stat :', stream[0].stats)
+            
+            # 이벤트 시간 범위에 해당하는 데이터 슬라이싱
+            print("start time :", start_time)
+            print("end time :", end_time)
+            # stream = stream.slice(starttime=UTCDateTime(start_time), endtime=UTCDateTime(end_time))
+            print('stream len :', len(stream))
+            trace = stream[0]
 
-        try:
-            for dirpath, dirnames, filenames in os.walk(mseed_base_path):
-                for filename in filenames:
-                    if str(year) in filename and str(doy) in filename and channel in filename:
-                        file_found = True
-                        print(f"Found file: {filename}")
-                        mseed_file_path = os.path.join(dirpath, filename)
-                        
-                        # MSEED 파일 읽기
-                        stream = read(mseed_file_path)
-                        
-                        # 이벤트 시간 범위에 해당하는 데이터 슬라이싱
-                        stream = stream.slice(starttime=UTCDateTime(start_time), endtime=UTCDateTime(end_time))
-                        trace = stream[0]
+            f, t, sxx = signal.spectrogram(trace.data, trace.stats.sampling_rate)
 
-                        # 스펙트로그램 계산 (SciPy 사용)
-                        f, t, sxx = signal.spectrogram(trace.data, trace.stats.sampling_rate)
+            # 로그 변환
+            sxx = np.sqrt(sxx + 1e-1000)
+            sxx = np.log10(sxx + 1e-1000)
 
-                        # 로그 변환
-                        sxx = np.sqrt(sxx + 1e-1000)
-                        sxx = np.log10(sxx + 1e-1000)
+            # 스펙트로그램 결과를 이미지로 저장
+            plt.figure(figsize=(10, 5))
+            plt.pcolormesh(t, f, sxx, shading='gouraud', cmap='jet')
 
-                        # 스펙트로그램 결과를 이미지로 저장
-                        plt.figure(figsize=(10, 5))
-                        plt.pcolormesh(t, f, sxx, shading='gouraud', cmap='jet')
+            # 주파수 범위 설정 및 로그 스케일
+            plt.ylim([min_freq, max_freq])
+            plt.yscale('log')
+            plt.yticks([0.1, 1, 10])
 
-                        # 주파수 범위 설정 및 로그 스케일
-                        plt.ylim([min_freq, max_freq])
-                        plt.yscale('log')
-                        plt.yticks([0.1, 1, 10])
+            plt.title(f'Spectrogram of Event {event["event_id"]} - {trace.stats.channel}')
+            plt.ylabel('Frequency [Hz]')
+            plt.xlabel('Time [sec]')
+            plt.colorbar(label='Log Amplitude')
+            plt.savefig(f'../data/results/seis/see/spectrogram_event_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.png')
+            plt.close()
 
-                        plt.title(f'Spectrogram of Event {event["event_id"]} - {trace.stats.channel}')
-                        plt.ylabel('Frequency [Hz]')
-                        plt.xlabel('Time [sec]')
-                        plt.colorbar(label='Log Amplitude')
-                        plt.savefig(f'../data/results/see/spectrogram_event_{event["start_time"].split("T")[0]}_{trace.stats.channel}.png')
-                        plt.close()
+            # 학습용 데이터로 저장 (불필요한 시각적 요소 없이)
+            plt.figure(figsize=(10, 5))
+            plt.pcolormesh(t, f, sxx, shading='gouraud', cmap='jet')
 
-                        # 학습용 데이터로 저장 (불필요한 시각적 요소 없이)
-                        plt.figure(figsize=(10, 5))
-                        plt.pcolormesh(t, f, sxx, shading='gouraud', cmap='jet')
+            # 시각적 요소 제거
+            plt.axis('off')  # 축, 눈금, 라벨 제거
 
-                        # 시각적 요소 제거
-                        plt.axis('off')  # 축, 눈금, 라벨 제거
+            # 학습용으로 크기를 조정할 필요가 있으면 이미지 리사이즈
+            plt.savefig(f'../data/results/seis/train/spectrogram_event_clean_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.png', 
+                        bbox_inches='tight', pad_inches=0)
+            plt.close()
 
-                        # 학습용으로 크기를 조정할 필요가 있으면 이미지 리사이즈
-                        plt.savefig(f'../data/results/train/spectrogram_event_clean_{event["start_time"].split("T")[0]}_{trace.stats.channel}.png', 
-                                    bbox_inches='tight', pad_inches=0)
-                        plt.close()
+            # npy로 저장
+            np.save(f'../data/results/seis/raw/spectrogram_event_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.npy', trace)
 
-                        # 오디오 데이터로 저장
-                        original_sampling_rate = trace.stats.sampling_rate
-                        target_sampling_rate = 44100  # 일반적인 오디오 샘플링 레이트로 변경 (44.1kHz)
-                        resample_ratio = target_sampling_rate / original_sampling_rate
 
-                        # 데이터를 numpy 배열로 변환
-                        data = trace.data
 
-                        # 리샘플링
-                        resampled_data = np.interp(
-                            np.linspace(0, len(data), int(len(data) * resample_ratio)),
-                            np.arange(len(data)),
-                            data
-                        )
+def load_and_process_twins(event, twins_base_path):
 
-                        # 데이터 스케일링 (16-bit PCM 형식)
-                        max_data = np.max(np.abs(resampled_data))
-                        if max_data > 0:
-                            normalized_data = np.int16((resampled_data / max_data) * 32767)
-                        else:
-                            normalized_data = np.int16(resampled_data)
+    start_time = datetime.strptime(event['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
+    end_time = datetime.strptime(event['end_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
 
-                        # 오디오 파일 저장 (WAV 파일 형식)
-                        wav_file_path = f'../data/results/audio/event_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.wav'
-                        write(wav_file_path, target_sampling_rate, normalized_data)
-                        print(f"Audio file saved as {wav_file_path}")
+    year = start_time.year
+    doy = start_time.timetuple().tm_yday
 
-            # 파일이 없을 경우 다운로드
-            if not file_found:
-                print(f"No data found for {year}-{doy}. Downloading...")
-                file_paths = download_data(start_time, type='seis')
-                print("file paths :", file_paths)
-                
-                if not file_paths:
-                    print(f"Failed to download data for {year}-{doy}. Skipping.")
-                else:
-                    for mseed_file_path in file_paths:
-                        print(f"Processing downloaded file: {mseed_file_path}")
-                        stream = read(mseed_file_path)
-                        
-                        # 이벤트 시간 범위에 해당하는 데이터 슬라이싱
-                        stream = stream.slice(starttime=UTCDateTime(start_time), endtime=UTCDateTime(end_time))
-                        trace = stream[0]
+    file_paths = download_data(start_time, type='twins')[0]
+    print("file paths :", file_paths)
+    # read twins data
 
-                        f, t, sxx = signal.spectrogram(trace.data, trace.stats.sampling_rate)
+    df = pd.read_csv(file_paths)
+    df['UTC'] = pd.to_datetime(df['UTC'], format='%Y-%jT%H:%M:%S.%fZ')
+    print('twins bef :', df.head())
 
-                        # 로그 변환
-                        sxx = np.sqrt(sxx + 1e-1000)
-                        sxx = np.log10(sxx + 1e-1000)
+    twins_data = df # df[(df['UTC'] >= start_time) & (df['UTC'] <= end_time)]
+    print('twins aft :', twins_data.head())
 
-                        # 스펙트로그램 결과를 이미지로 저장
-                        plt.figure(figsize=(10, 5))
-                        plt.pcolormesh(t, f, sxx, shading='gouraud', cmap='jet')
-                        plt.ylim([min_freq, max_freq])
-                        plt.yscale('log')
-                        plt.yticks([0.1, 1, 10])
+    # save as npy
+    print(twins_data['HORIZONTAL_WIND_SPEED'])
+    np.save(f'../data/results/twins/raw/twins_data_{event["start_time"].split("/")[-1]}.npy', twins_data['HORIZONTAL_WIND_SPEED'])
 
-                        plt.title(f'Spectrogram of Event {event["event_id"]} - {trace.stats.channel}')
-                        plt.ylabel('Frequency [Hz]')
-                        plt.xlabel('Time [sec]')
-                        plt.colorbar(label='Log Amplitude')
-                        plt.savefig(f'../data/results/see/spectrogram_event_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.png')
-                        plt.close()
+    # save as plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(twins_data['UTC'], twins_data['HORIZONTAL_WIND_SPEED'], label='Horizontal Wind Speed', linewidth=2)
+    plt.title(f'TWINS Data of Event {event["event_id"]}')
 
-                        # 학습용 데이터로 저장
-                        plt.figure(figsize=(10, 5))
-                        plt.pcolormesh(t, f, sxx, shading='gouraud', cmap='jet')
-                        plt.axis('off')
-                        plt.savefig(f'../data/results/train/spectrogram_event_clean_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.png', 
-                                    bbox_inches='tight', pad_inches=0)
-                        plt.close()
+    plt.savefig(f'../data/results/twins/see/twins_data_{event["start_time"].split("/")[-1]}.png')
+    plt.close()
+    
 
-                        # 오디오 데이터로 저장
-                        original_sampling_rate = trace.stats.sampling_rate
-                        target_sampling_rate = 44100  # 오디오 샘플링 레이트 (44.1kHz)
-                        resample_ratio = target_sampling_rate / original_sampling_rate
-                        data = trace.data
+def load_and_process_ps(event, ps_base_path):
+    start_time = datetime.strptime(event['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
+    end_time = datetime.strptime(event['end_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
 
-                        # 리샘플링
-                        resampled_data = np.interp(
-                            np.linspace(0, len(data), int(len(data) * resample_ratio)),
-                            np.arange(len(data)),
-                            data
-                        )
+    year = start_time.year
+    doy = start_time.timetuple().tm_yday
 
-                        # 스케일링
-                        max_data = np.max(np.abs(resampled_data))
-                        if max_data > 0:
-                            normalized_data = np.int16((resampled_data / max_data) * 32767)
-                        else:
-                            normalized_data = np.int16(resampled_data)
+    file_paths = download_data(start_time, type='ps')[0]
+    print("file paths :", file_paths)
 
-                        # WAV 파일로 저장
-                        wav_file_path = f'../data/results/audio/event_{event["start_time"].split("T")[0]}_{trace.stats.channel}.wav'
-                        write(wav_file_path, target_sampling_rate, normalized_data)
-                        print(f"Audio file saved as {wav_file_path}")
+    # read ps data
+    df = pd.read_csv(file_paths)
+    df['UTC'] = pd.to_datetime(df['UTC'], format='%Y-%jT%H:%M:%S.%fZ')
 
-        except Exception as e:
-            print(f"Error processing {channel} data: {e}")
+    ps_data = df # df[(df['UTC'] >= start_time) & (df['UTC'] <= end_time)]
 
+    # save as npy
+    np.save(f'../data/results/ps/raw/ps_data_{event["start_time"].split("/")[-1]}.npy', ps_data['PRESSURE'])
+
+    # save as plot 
+    plt.figure(figsize=(10, 5))
+    plt.plot(ps_data['UTC'], ps_data['PRESSURE'],  label='Pressure', linewidth=2)
+    plt.title(f'PS Data of Event {event["event_id"]}')
+
+    plt.savefig(f'../data/results/ps/see/ps_data_{event["start_time"].split("/")[-1]}.png')
+    plt.close()
+
+    
 
 def main():
     file_path = '../data/events_extended_preferredorigin_2019-10-01.xml'  # 실제 XML 파일 경로
     mseed_path = '../data/downloads/seis'  # 실제 mseed 파일 경로
-    selected_quality = 'b'  # 사용자가 선택한 퀄리티 (예: b)
+    twins_path = '../data/downloads/twins'  # TWINS 데이터 경로
+
+    selected_quality = 'a'  # 사용자가 선택한 퀄리티 (예: b)
     
     event_list = parse_quakeml(file_path, selected_quality)
     print(f"Found {len(event_list)} events with quality {selected_quality}")
@@ -327,6 +300,8 @@ def main():
         start_date = datetime.strptime(event['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
         print(start_date)
         load_and_process_mseed(event, mseed_path)
+        load_and_process_twins(event, twins_path)
+        load_and_process_ps(event, twins_path)
 
 if __name__ == "__main__":
     main()
