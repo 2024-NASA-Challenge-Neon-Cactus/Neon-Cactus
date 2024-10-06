@@ -1,8 +1,11 @@
-import DashBoard from "./components/DashBoard";
+import EarthDashBoard from "./pages/EarthDashBoard";
+import MarsDashBoard from "./pages/MarsDashBoard";
+
 function App() {
   return (
     <div>
-      <DashBoard />
+      <EarthDashBoard />
+      {/* <MarsDashBoard /> */}
     </div>
   );
 }
