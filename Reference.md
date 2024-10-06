@@ -29,7 +29,7 @@
 
 ## Web
 
-### 기술 스택
+### Technology Stack
 - JavaScript
 - Python
 - Tailwind CSS
@@ -39,5 +39,3 @@
 - @react-three/fiber
 - R3D @react-three/drei
 
-## 모델 관련
-(추가 내용이 필요하다면 여기에 작성하세요)
