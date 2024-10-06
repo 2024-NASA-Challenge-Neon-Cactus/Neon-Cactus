@@ -7,7 +7,7 @@ from pathlib import Path
 router = APIRouter()
 
 @router.get("/")
-async def get_info(planet: str, event: str, case: int):
+async def get_info(planet: str, case: int):
     response = {}
 
     # planet 조건 분기
@@ -18,14 +18,6 @@ async def get_info(planet: str, event: str, case: int):
     else:
         raise HTTPException(status_code=400, detail=f"Unknown planet: {planet}")
 
-    # event 조건 분기
-    if event == "earthquakes":
-        response["event"] = "earthquakes"
-    elif event == "nonevent":
-        response["event"] = "nonevent"
-    else:
-        raise HTTPException(status_code=400, detail=f"Unknown event: {event}")
-
     # case 조건 분기
     if case == 1:
         response["case"] = "1"
@@ -33,11 +25,17 @@ async def get_info(planet: str, event: str, case: int):
         response["case"] = "2"
     elif case == 3:
         response["case"] = "3"
+    elif case == 4:
+        response["case"] = "4"
+    elif case == 5:
+        response["case"] = "5"
+    elif case == 6:
+        response["case"] = "6"
     else:
         raise HTTPException(status_code=400, detail=f"Unknown case: {case}")
 
     # 동적으로 파일 이름 생성
-    filename = f"{planet}_{event}_{case}.json"
+    filename = f"{planet}_{case}.json"
     
     # getinfo.py 파일 기준으로 data 폴더까지의 상대 경로 설정
     base_dir = Path(__file__).resolve().parent.parent  # BE 폴더로 이동
