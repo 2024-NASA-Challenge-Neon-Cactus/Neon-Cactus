@@ -4,7 +4,7 @@ import { TextureLoader } from "three";
 import marsTexturePath from "../assets/images/mars.jpg";
 import earthTexturePath from "../assets/images/earth.jpg";
 
-const Planet = ({ planet }) => {
+const Planet = ({ planet, scale }) => {
   const planetRef = useRef();
   const planetTexture = useLoader(
     TextureLoader,
@@ -20,7 +20,7 @@ const Planet = ({ planet }) => {
   });
 
   return (
-    <mesh ref={planetRef} scale={[0.1, 0.1, 0.1]}>
+    <mesh ref={planetRef} scale={scale}>
       <sphereGeometry args={[80, 64, 32]} />
       <meshBasicMaterial map={planetTexture} />
     </mesh>

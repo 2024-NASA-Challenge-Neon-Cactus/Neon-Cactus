@@ -1,6 +1,34 @@
 import React from "react";
+import WindChart from "../components/chart/WindChart";
 
 const VisualizeData = () => {
+  const pressureAndTemperatureData = [
+    { time: "2024-10-01T00:00:00Z", pressure: 1012, temperature: 15 },
+    { time: "2024-10-01T01:00:00Z", pressure: 1011, temperature: 14.5 },
+    { time: "2024-10-01T02:00:00Z", pressure: 1013, temperature: 15.2 },
+    { time: "2024-10-01T03:00:00Z", pressure: 1010, temperature: 14.8 },
+    { time: "2024-10-01T04:00:00Z", pressure: 1012, temperature: 15.0 },
+    { time: "2024-10-01T05:00:00Z", pressure: 1011, temperature: 15.1 },
+    { time: "2024-10-01T06:00:00Z", pressure: 1013, temperature: 14.7 },
+    { time: "2024-10-01T07:00:00Z", pressure: 1014, temperature: 15.4 },
+    { time: "2024-10-01T08:00:00Z", pressure: 1012, temperature: 15.6 },
+    { time: "2024-10-01T09:00:00Z", pressure: 1010, temperature: 15.2 },
+    { time: "2024-10-01T10:00:00Z", pressure: 1009, temperature: 15.8 },
+    { time: "2024-10-01T11:00:00Z", pressure: 1011, temperature: 16.0 },
+    { time: "2024-10-01T12:00:00Z", pressure: 1013, temperature: 16.2 },
+    { time: "2024-10-01T13:00:00Z", pressure: 1012, temperature: 16.5 },
+    { time: "2024-10-01T14:00:00Z", pressure: 1011, temperature: 16.7 },
+    { time: "2024-10-01T15:00:00Z", pressure: 1010, temperature: 16.3 },
+    { time: "2024-10-01T16:00:00Z", pressure: 1008, temperature: 16.1 },
+    { time: "2024-10-01T17:00:00Z", pressure: 1010, temperature: 15.9 },
+    { time: "2024-10-01T18:00:00Z", pressure: 1011, temperature: 15.5 },
+    { time: "2024-10-01T19:00:00Z", pressure: 1013, temperature: 15.3 },
+    { time: "2024-10-01T20:00:00Z", pressure: 1012, temperature: 15.4 },
+    { time: "2024-10-01T21:00:00Z", pressure: 1011, temperature: 15.6 },
+    { time: "2024-10-01T22:00:00Z", pressure: 1010, temperature: 15.7 },
+    { time: "2024-10-01T23:00:00Z", pressure: 1009, temperature: 15.8 },
+  ];
+
   return (
     <div
       className=" h-[635px] mt-[10px] border-[#999999] rounded-3xl p-[30px] flex flex-row"
@@ -22,6 +50,9 @@ const VisualizeData = () => {
           </div>
           <div className="text-[#FFFFFF] text-[16px] tracking-[-0.02em] leading-[19.2px] pt-[6px]">
             (TWINS Sensor)
+          </div>
+          <div className="mt-[20px]">
+            <WindChart data={pressureAndTemperatureData} />
           </div>
         </div>
         <div
