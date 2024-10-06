@@ -17,6 +17,7 @@ data/processed/
 # Results
 data/results/
 data/downloads
+data/results_demo/
 
 # Configuration files
 config/*.yaml
@@ -33,3 +34,4 @@ config/*.yaml
 Thumbs.db
 
 downloads/
+

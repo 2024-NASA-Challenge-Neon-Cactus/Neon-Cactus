@@ -30,66 +30,40 @@ class SEISDownloader:
         self.session = requests.Session()
 
     def download_file(self, url, directory):
-
         file_name = url.split('/')[-1]
         file_path = os.path.join(directory, file_name)
 
-
-        print("try to download file_path: ", file_path)
         try:
             response = self.session.get(url)
             response.raise_for_status()
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             logging.info(f'{file_name} 다운로드 완료')
-            print("downed file_path: ", file_path)
-            return file_path
-        
-        except Exception as e:
-            print("다운 실패 url: ", url)
-            logging.error(f'파일 다운로드 실패: {url}, 에러: {e}')
         except requests.HTTPError as e:
-            print("다운 실패 url: ", url)
             logging.error(f'파일 다운로드 실패: {url}, 에러: {e}')
-        
 
-    def crawl_and_download(self, start_date, end_date, directory, channel_list, station_list=['elyh0', 'elyhk', 'elys0', 'elyse']):
-        done_file_list = []
-
+    def crawl_and_download(self, start_date, end_date, directory):
         date = start_date
         while date <= end_date:
             year = date.year
             doy = date.timetuple().tm_yday
 
-            for station in station_list:
+            for station in ['elyh0', 'elyhk', 'elys0', 'elyse']:
                 url = f'{self.base_url}/insight/urn-nasa-pds-insight_seis/data/xb/continuous_waveform/{station}/{year}/{doy:03d}/'
-                print("crawling url: ", url)
                 logging.info(f"[*] Crawling URL: {url}")
                 try:
                     response = self.session.get(url)
                     response.raise_for_status()
                     soup = BeautifulSoup(response.text, 'html.parser')
-                    
 
                     for link in soup.find_all('a'):
                         href = link.get('href')
                         if href.endswith('.mseed'):
-                            if channel_list:
-                                if any(channel.lower() in href for channel in channel_list):
-                                    print("downloading file: ", href)
-                                    file_url = self.base_url + href
-                                    file_path = self.download_file(file_url, directory)
-                                    done_file_list.append(file_path)
-                            else:
-                                # download all channels
-                                file_url = self.base_url + href
-                                file_path = self.download_file(file_url, directory)
-                                done_file_list.append(file_path)
+                            file_url = self.base_url + href
+                            self.download_file(file_url, directory)
                 except requests.HTTPError as e:
                     logging.error(f'페이지 크롤링 실패: {url}, 에러: {e}')
                 date += timedelta(days=1)
-            
-        return done_file_list
 
 # twins_downloader.py
 

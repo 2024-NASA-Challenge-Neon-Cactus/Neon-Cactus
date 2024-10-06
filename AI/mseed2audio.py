@@ -4,7 +4,9 @@ import numpy as np
 from scipy.io.wavfile import write
 
 # mseed 파일 경로 설정 (사용자 데이터셋으로 변경)
-mseed_file_path = 'data/CI.PASC.10.HHZ_2023-08-20T21_40_17.577_2023-08-20T21_51_17.577.mseed'
+# mseed_file_path = 'data/CI.PASC.10.HHZ_2023-08-20T21_40_17.577_2023-08-20T21_51_17.577.mseed'
+
+mseed_file_path = '/home/jun0zo/Project/Neon-Cactus/AI/data/downloads/seis/xb.elyse.02.bhu.2019.227.6.mseed'
 
 # mseed 파일 읽기
 st = read(mseed_file_path)
