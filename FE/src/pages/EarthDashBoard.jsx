@@ -21,7 +21,7 @@ const EarthDashBoard = () => {
             <Canvas camera={{ position: [0, 0, 15], fov: 75 }}>
               <ambientLight intensity={0.5} />
               <OrbitControls target={[0, 0, 0]} />
-              <Planet planet="earth" />
+              <Planet planet="earth" scale={[0.1, 0.1, 0.1]} />
             </Canvas>
           </div>
           <div className="flex flex-col w-[1064px] ml-[-130px] my-[56px] mr-[70px] z-10">
