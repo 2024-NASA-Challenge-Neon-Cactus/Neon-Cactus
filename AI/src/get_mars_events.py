@@ -196,7 +196,7 @@ def load_and_process_mseed(event, mseed_base_path, min_freq=0.1, max_freq=10):
                         plt.ylabel('Frequency [Hz]')
                         plt.xlabel('Time [sec]')
                         plt.colorbar(label='Log Amplitude')
-                        plt.savefig(f'../data/results/see/spectrogram_event_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.png')
+                        plt.savefig(f'../data/results/see/spectrogram_event_{event["start_time"].split("T")[0]}_{trace.stats.channel}.png')
                         plt.close()
 
                         # 학습용 데이터로 저장 (불필요한 시각적 요소 없이)
@@ -207,7 +207,7 @@ def load_and_process_mseed(event, mseed_base_path, min_freq=0.1, max_freq=10):
                         plt.axis('off')  # 축, 눈금, 라벨 제거
 
                         # 학습용으로 크기를 조정할 필요가 있으면 이미지 리사이즈
-                        plt.savefig(f'../data/results/train/spectrogram_event_clean_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.png', 
+                        plt.savefig(f'../data/results/train/spectrogram_event_clean_{event["start_time"].split("T")[0]}_{trace.stats.channel}.png', 
                                     bbox_inches='tight', pad_inches=0)
                         plt.close()
 
@@ -304,7 +304,7 @@ def load_and_process_mseed(event, mseed_base_path, min_freq=0.1, max_freq=10):
                             normalized_data = np.int16(resampled_data)
 
                         # WAV 파일로 저장
-                        wav_file_path = f'../data/results/audio/event_{event["start_time"].split("/")[-1]}_{trace.stats.channel}.wav'
+                        wav_file_path = f'../data/results/audio/event_{event["start_time"].split("T")[0]}_{trace.stats.channel}.wav'
                         write(wav_file_path, target_sampling_rate, normalized_data)
                         print(f"Audio file saved as {wav_file_path}")
 
