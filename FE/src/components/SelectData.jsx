@@ -17,7 +17,7 @@ const SelectData = ({ planet, event, nonEvent }) => {
         style={{
           backdropFilter: "blur(80px)",
           border: "1px solid",
-          borderColor: "#FFFFFF",
+          borderColor: "#CBCBCB66",
           borderImageSource:
             "linear-gradient(160.8deg, rgba(255, 255, 255, 0.6) -28.98%, rgba(153, 153, 153, 0.6) 75.6%)",
           backgroundColor: "#FFFFFF1A",
