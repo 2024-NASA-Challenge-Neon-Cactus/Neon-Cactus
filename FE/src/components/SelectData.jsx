@@ -3,6 +3,14 @@ import Button from "./common/Button";
 import VisualizeData from "./VisualizeData";
 
 const SelectData = ({ planet, event, nonEvent }) => {
+  const [chartData, setChartData] = useState({
+    pressureData: [],
+    temperatureData: [],
+    seisData: [],
+    noiseData: [],
+    eventData: [],
+  });
+
   const [clickedBtn, setClickedBtn] = useState("1");
   const [date, setDate] = useState("");
 
@@ -13,7 +21,7 @@ const SelectData = ({ planet, event, nonEvent }) => {
     } else if (planet === "Earth") {
       setDate("June 15th, 2024"); // Earth의 경우 (원하는 초기값으로 변경)
     }
-  }, [planet]); // planet이 변경될 때마다 effect 실행
+  }, [planet]);
 
   const btnHandler = (id) => {
     setClickedBtn(id);
@@ -21,33 +29,44 @@ const SelectData = ({ planet, event, nonEvent }) => {
   };
 
   const fetchData = async (caseId) => {
-    try {
-      const response = await fetch(
-        `http://220.68.27.140:8000/getinfo/?planet=${planet}&case=${caseId}`
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
-      setDate(formatDate(data.date)); // API에서 받은 날짜를 사용하여 상태를 업데이트합니다.
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+    // 서버 대신 더미 데이터를 설정합니다.
+    const dummyData = {
+      pressureData: [
+        1,2,3
+      ],
+      temperatureData: [
+        1,2,3
+      ],
+      seisData: [
+        1,2,3
+      ],
+      noiseData: [
+        1,2,3
+      ],
+      eventData: [
+        1,2,3
+      ],
+    };
+
+    // 더미 데이터를 chartData 상태에 설정합니다.
+    setChartData(dummyData);
   };
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     const date = new Date(dateString);
     const formattedDate = date.toLocaleDateString("en-US", options);
-
-    // "June 15, 2024"에서 "June 15th, 2024"로 변경
     return formattedDate.replace(/(\d+)(?=,)/, "$1th");
   };
+
+  useEffect(() => {
+    fetchData(clickedBtn);
+  }, [clickedBtn]);
 
   return (
     <div>
       <div
-        className=" h-[313px] rounded-3xl "
+        className="h-[313px] rounded-3xl"
         style={{
           backdropFilter: "blur(80px)",
           border: "1px solid",
@@ -58,7 +77,7 @@ const SelectData = ({ planet, event, nonEvent }) => {
         }}
       >
         <div className="pl-[48px]">
-          <div className="pt-[42px]  pretendard text-[#FFFFFF] text-[24px] font-bold leading-[28.8px] tracking-[-0.02em]">
+          <div className="pt-[42px] pretendard text-[#FFFFFF] text-[24px] font-bold leading-[28.8px] tracking-[-0.02em]">
             {date}
           </div>
           <div className="pt-[7px] d-din font-bold text-[72px] tracking-[-0.02em] leading-[78.19px] text-[#FFFFFF]">
@@ -112,7 +131,13 @@ const SelectData = ({ planet, event, nonEvent }) => {
           </div>
         </div>
       </div>
-      <VisualizeData />
+      <VisualizeData
+        windData={chartData.temperatureData}  // 더미 데이터 사용
+        pressureData={chartData.pressureData}  
+        seisData={chartData.seisData} 
+        noiseData={chartData.noiseData} 
+        eventData={chartData.eventData}  // 더미 데이터 사용
+      />
     </div>
   );
 };
