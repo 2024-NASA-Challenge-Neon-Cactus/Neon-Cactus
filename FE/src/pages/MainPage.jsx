@@ -1,12 +1,19 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Planet from "../components/Planet";
 import { Canvas } from "@react-three/fiber";
 
 const MainPage = () => {
+  const navigate = useNavigate();
   const [clickedBtn, setClickedBtn] = useState(null); // 클릭된 버튼 ID 상태
 
   const handleButtonClick = (id) => {
     setClickedBtn(clickedBtn === id ? null : id);
+    if (id === "earthquake") {
+      navigate("/earthquake");
+    } else if (id === "marsquake") {
+      navigate("/marsquake");
+    }
   };
 
   return (
