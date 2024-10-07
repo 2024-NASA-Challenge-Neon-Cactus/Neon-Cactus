@@ -30,26 +30,41 @@ const SelectData = ({ planet, event, nonEvent }) => {
 
   const fetchData = async (caseId) => {
     // 서버 대신 더미 데이터를 설정합니다.
-    const dummyData = {
-      pressureData: [
-        1,2,3
-      ],
-      temperatureData: [
-        1,2,3
-      ],
-      seisData: [
-        1,2,3
-      ],
-      noiseData: [
-        1,2,3
-      ],
-      eventData: [
-        1,2,3
-      ],
-    };
+    // const dummyData = {
+    //   pressureData: [
+    //     1,2,3
+    //   ],
+    //   temperatureData: [
+    //     1,2,3
+    //   ],
+    //   seisData: [
+    //     1,2,3
+    //   ],
+    //   noiseData: [
+    //     1,2,3
+    //   ],
+    //   eventData: [
+    //     1,2,3
+    //   ],
+    // };
+
+    // 서버에서 데이터를 가져오는 코드
+    const response = await fetch(`http://220.68.27.140:8000/getinfo?planet=${planet}&case=${caseId}`);
+    const data = await response.json();
+    
+    // 서버에서 받은 데이터 : ({pressure: [], temperature: [], seis: [], noise: [], event: []})
+    // 서버에서 받은 데이터를 chartData 상태에 설정합니다.
+    setChartData({
+      pressureData: data.pressure,
+      temperatureData: data.temperature,
+      seisData: data.seis,
+      noiseData: data.noise,
+      eventData: data.event,
+    });
+
 
     // 더미 데이터를 chartData 상태에 설정합니다.
-    setChartData(dummyData);
+    // setChartData(dummyData);
   };
 
   const formatDate = (dateString) => {
